@@ -1,0 +1,152 @@
+---
+title: "Project 2"
+author: "John Rollman"
+date: "October 14, 2020"
+output: pdf_document
+#output:
+#  rmarkdown::github_document:
+#    toc: yes
+#    toc_depth: '4'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#Introduction
+I will write stuff here about the bike data. there are variables about the day such as year, holiday, weekday, working day and the weather. The purpose of this project is to predict the count of bikes rented on a particular day given some covariates about the day.
+
+
+##Packages Used  
+```{r, message=FALSE, error=FALSE, warning=FALSE}
+library(tidyverse)
+library(caret)
+library(knitr)
+library(gbm)
+library(randomForest)
+library(DT)
+library(corrplot)
+library(cowplot)
+library(gridExtra)
+library(ggpubr)
+library(rattle)
+```
+
+
+##Data Pulling and Manipulation  
+```{r}
+bikeData.full <- read.csv("day.csv") 
+bikeData <- bikeData.full %>% as_tibble() %>% select(!casual & !registered) %>% filter(weekday==1) ##Add parameter here later
+```
+
+
+#Exploratory Summary  
+##Summary Statistics  
+```{r, message=FALSE, error=FALSE, warning=FALSE}
+kable(as.array(summary(bikeData$cnt)), caption = "Summary Statistics of Daily Bike Rentals", digits = 1)
+```
+
+
+##Histogram  
+```{r, message=FALSE, error=FALSE, warning=FALSE}
+ggplot(bikeData, aes(x=cnt)) +
+  geom_histogram(binwidth = 1000, aes(y=..density..)) +
+  geom_density(adjust = .4, show.legend = F, outline.type = "full", lwd=1, aes(color = "blue"))
+```
+
+
+##Scatter Plots  
+```{r, message=FALSE, error=FALSE, warning=FALSE}
+ggplot(bikeData,aes(x=temp,y=cnt)) + 
+  geom_point(aes(color = as.factor(season))) +
+  geom_smooth(method=lm, col="Green") +
+  ggtitle("Temperature vs Daily Bike Rentals") +
+  labs(x = "Normalized Temp in C", y = "Daily Bike Rental Count") +
+  scale_color_manual(name = "Season", labels=c("Winter","Spring", "Summer","Fall"), values=c("light blue", "light green", "red", "brown"))
+
+ggplot(bikeData,aes(x=atemp,y=cnt)) + 
+  geom_point(aes(color = as.factor(season))) +
+  geom_smooth(method=lm, col="Green") +
+  ggtitle("'Feeling' Temperature vs Daily Bike Rentals") +
+  labs(x = "Normalized 'Feeling' Temp in C", y = "Daily Bike Rental Count") +
+  scale_color_manual(name = "Season", labels=c("Winter","Spring", "Summer","Fall"), values=c("light blue", "light green", "red", "brown"))
+
+ggplot(bikeData,aes(x=hum,y=cnt)) + 
+  geom_point(aes(color = as.factor(season))) +
+  geom_smooth(method=lm, col="Green") +
+  ggtitle("Humidity vs Daily Bike Rentals") +
+  labs(x = "Normalized Humidity", y = "Daily Bike Rental Count") +
+  scale_color_manual(name = "Season", labels=c("Winter","Spring", "Summer","Fall"), values=c("light blue", "light green", "red", "brown"))
+
+ggplot(bikeData,aes(x=windspeed,y=cnt)) + 
+  geom_point(aes(color = as.factor(season))) +
+  geom_smooth(method=lm, col="Green") +
+  ggtitle("Wind Speed vs Daily Bike Rentals") +
+  labs(x = "Normalized Wind Speed", y = "Daily Bike Rental Count") +
+  scale_color_manual(name = "Season", labels=c("Winter","Spring", "Summer","Fall"), values=c("light blue", "light green", "red", "brown"))
+```
+
+
+##Box Plots  
+```{r, message=FALSE, error=FALSE, warning=FALSE}
+ggplot(bikeData, aes(x = as.factor(season), y = cnt)) +
+  geom_boxplot() +
+  geom_jitter(aes(color = as.factor(season))) +
+  scale_color_manual(name = "Season", labels=c("Winter","Spring", "Summer","Fall"), values=c("light blue", "light green", "red", "brown")) +
+  ggtitle("Distribution of Daily Bike Rentals Across Season") +
+  labs(x = "Season", y = "Daily Bike Rental Count")
+
+ggplot(bikeData, aes(x = as.factor(holiday), y = cnt)) +
+  geom_boxplot() +
+  geom_jitter(aes(color = as.factor(holiday))) +
+  scale_color_discrete(name = "Holiday", labels=c("no","yes")) +
+  ggtitle("Average Rentals: Holiday vs Regular Day") +
+  labs(x = "Holiday", y = "Average Daily Bike Rental Count")
+
+ggplot(bikeData, aes(x = as.factor(weathersit), y = cnt)) +
+  geom_boxplot() +
+  geom_jitter(aes(color = as.factor(weathersit))) +
+  scale_color_discrete(name = "Weather", labels=c("Clear","Mist","Light Precip.", "Heavy Precip.")) +
+  ggtitle("Average Rentals Across Weather Categories") +
+  labs(x = "Weather", y = "Average Daily Bike Rental Count")
+```
+
+
+#Model Building  
+
+##Data Splitting  
+```{r, message=FALSE, error=FALSE, warning=FALSE}
+set.seed(558)
+DataIndex <- createDataPartition(bikeData$cnt, p = .7, list = F)
+bikeTrain <- bikeData[DataIndex,-(1:2)] %>% mutate_at(1:7,factor)
+bikeTest <- bikeData[-DataIndex,-(1:2)] %>% mutate_at(1:7,factor)
+```
+
+
+##Tree Based Model (Single)  
+```{r}
+treeFit <- train(cnt ~ season + workingday + weathersit + temp + atemp + hum + windspeed, data = bikeTrain,
+                  method = "rpart",
+                  trControl = trainControl(method = "LOOCV")
+                  )
+treeFit$results
+fancyRpartPlot(treeFit$finalModel)
+```
+
+
+## Boosted Tree Model (Ensemble)  
+```{r}
+boostFit <- train(cnt ~ season + workingday + temp + atemp + hum + windspeed, data = bikeTrain,
+                  method = "gbm",
+                  trControl = trainControl(method = "cv", number = 10),
+                  verbose = FALSE
+                  )
+boostFit$results
+boostFit$bestTune
+min(boostFit$results$RMSE)
+```
+
+
+
+
