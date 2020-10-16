@@ -90,7 +90,7 @@ ggplot(bikeTrain, aes(x=cnt)) +
   facet_grid(.~season, labeller = labeller(season = season.lab))
 ```
 
-![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
 Scatter Plots
 -------------
@@ -108,7 +108,7 @@ ggplot(bikeTrain,aes(x=temp,y=cnt)) +
                      values=c("light blue", "light green", "red", "brown"))
 ```
 
-![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
 ``` r
 ggplot(bikeTrain,aes(x=atemp,y=cnt)) + 
@@ -121,7 +121,7 @@ ggplot(bikeTrain,aes(x=atemp,y=cnt)) +
                      values=c("light blue", "light green", "red", "brown"))
 ```
 
-![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-6-2.png)
+![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-18-2.png)
 
 ``` r
 ggplot(bikeTrain,aes(x=hum,y=cnt)) + 
@@ -134,7 +134,7 @@ ggplot(bikeTrain,aes(x=hum,y=cnt)) +
                      values=c("light blue", "light green", "red", "brown"))
 ```
 
-![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-6-3.png)
+![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-18-3.png)
 
 ``` r
 ggplot(bikeTrain,aes(x=windspeed,y=cnt)) + 
@@ -147,7 +147,7 @@ ggplot(bikeTrain,aes(x=windspeed,y=cnt)) +
                      values=c("light blue", "light green", "red", "brown"))
 ```
 
-![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-6-4.png)
+![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-18-4.png)
 
 Box Plots
 ---------
@@ -165,7 +165,7 @@ ggplot(bikeTrain, aes(x = as.factor(season), y = cnt)) +
   labs(x = "Season", y = "Daily Bike Rental Count")
 ```
 
-![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-19-1.png)
 
 ``` r
 ggplot(bikeTrain, aes(x = as.factor(holiday), y = cnt)) +
@@ -176,7 +176,7 @@ ggplot(bikeTrain, aes(x = as.factor(holiday), y = cnt)) +
   labs(x = "Holiday", y = "Average Daily Bike Rental Count")
 ```
 
-![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-7-2.png)
+![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-19-2.png)
 
 ``` r
 ggplot(bikeTrain, aes(x = as.factor(weathersit), y = cnt)) +
@@ -188,7 +188,7 @@ ggplot(bikeTrain, aes(x = as.factor(weathersit), y = cnt)) +
   labs(x = "Weather", y = "Average Daily Bike Rental Count")
 ```
 
-![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-7-3.png)
+![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-19-3.png)
 
 Model Building
 ==============
@@ -207,7 +207,7 @@ treeFit <- train(cnt ~ season + workingday + temp + atemp + hum + windspeed,
 fancyRpartPlot(treeFit$finalModel)
 ```
 
-![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](SundayAnalysis_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
 ``` r
 #Model Tree Plot
@@ -244,8 +244,6 @@ model2.perf
 Training Performance
 --------------------
 
-From the models above, the boosted tree model performs the best in terms of RMSE as well as Rsquared. Below are the models compared.
-
 ``` r
 Model.perf <- rbind(model1.perf,model2.perf)
 kable(Model.perf, caption = "Model Performance on Training Data", digits = 2)
@@ -255,6 +253,8 @@ kable(Model.perf, caption = "Model Performance on Training Data", digits = 2)
 |:-----------------------------|--------:|---------:|
 | Single Regression Tree Model |  1479.54|      0.40|
 | Boosted Tree Model           |  1203.73|      0.62|
+
+From the models above, the Boosted Tree Model performs the best in terms of training RMSE as well as Rsquared.
 
 Test Data Performance
 =====================
@@ -268,7 +268,7 @@ pred.model.2 <- predict(boostFit,newdata = bikeTest)
 pred.perf.2 <- postResample(pred.model.2,bikeTest$cnt)
 #pred.perf.2
 
-pred.perf <- rbind(pred.perf.1,pred.perf.2)
+pred.perf <- data.frame(rbind(pred.perf.1,pred.perf.2))
 rownames(pred.perf) <- c("Single Regression Tree Model", "Boosted Tree Model")
 kable(pred.perf[,1:2], caption = "Model Performance on Testing Data", digits = 2)
 ```
@@ -278,4 +278,4 @@ kable(pred.perf[,1:2], caption = "Model Performance on Testing Data", digits = 2
 | Single Regression Tree Model |  1540.48|      0.32|
 | Boosted Tree Model           |  1163.06|      0.61|
 
-Based on the testing data performance, it looks like the single regression tree would produced better results. This could be due to the stochastic nature of splitting the data set into a test and training set. Further work could be done to make sure both test and training set are equally representative.
+Based on the testing data performance, Boosted Tree Model would be the more optimal model based on test RMSE. This could also be affected by the stochastic nature of splitting the data set into a test and training set. Further work could be done to make sure both test and training set are equally representative.

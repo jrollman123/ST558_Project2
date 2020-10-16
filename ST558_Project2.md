@@ -244,8 +244,6 @@ model2.perf
 Training Performance
 --------------------
 
-From the models above, the boosted tree model performs the best in terms of RMSE as well as Rsquared. Below are the models compared.
-
 ``` r
 Model.perf <- rbind(model1.perf,model2.perf)
 kable(Model.perf, caption = "Model Performance on Training Data", digits = 2)
@@ -255,6 +253,8 @@ kable(Model.perf, caption = "Model Performance on Training Data", digits = 2)
 |:-----------------------------|--------:|---------:|
 | Single Regression Tree Model |  1670.55|      0.24|
 | Boosted Tree Model           |  1283.14|      0.58|
+
+From the models above, the Boosted Tree Model performs the best in terms of training RMSE as well as Rsquared.
 
 Test Data Performance
 =====================
@@ -268,7 +268,7 @@ pred.model.2 <- predict(boostFit,newdata = bikeTest)
 pred.perf.2 <- postResample(pred.model.2,bikeTest$cnt)
 #pred.perf.2
 
-pred.perf <- rbind(pred.perf.1,pred.perf.2)
+pred.perf <- data.frame(rbind(pred.perf.1,pred.perf.2))
 rownames(pred.perf) <- c("Single Regression Tree Model", "Boosted Tree Model")
 kable(pred.perf[,1:2], caption = "Model Performance on Testing Data", digits = 2)
 ```
@@ -278,4 +278,4 @@ kable(pred.perf[,1:2], caption = "Model Performance on Testing Data", digits = 2
 | Single Regression Tree Model |  1034.69|      0.59|
 | Boosted Tree Model           |  1136.74|      0.50|
 
-Based on the testing data performance, it looks like the single regression tree would produced better results. This could be due to the stochastic nature of splitting the data set into a test and training set. Further work could be done to make sure both test and training set are equally representative.
+Based on the testing data performance, Single Regression Tree Model would be the more optimal model. This could also be affected by the stochastic nature of splitting the data set into a test and training set. Further work could be done to make sure both test and training set are equally representative.
