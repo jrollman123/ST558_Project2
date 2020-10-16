@@ -22,7 +22,9 @@ This repository holds all material related to the ST558 Project 2. It also will 
 # Render Code  
 
 ```{r}
-fileNames <- c("SundayAnalysis.md","MondayAnalysis.md","TuesdayAnalysis.md","WednesdayAnalysis.md","ThursdayAnalysis.md","FridayAnalysis.md","SaturdayAnalysis.md")
+fileNames <- c("SundayAnalysis.md","MondayAnalysis.md","TuesdayAnalysis.md",
+               "WednesdayAnalysis.md","ThursdayAnalysis.md","FridayAnalysis.md",
+               "SaturdayAnalysis.md")
 weekday <- c(0,1,2,3,4,5,6)
 params <- lapply(weekday, FUN = function(x){list(weekday = x)})
 fileDF <- tibble(fileNames,params)
