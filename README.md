@@ -17,8 +17,8 @@ This repository holds all material related to the ST558 Project 2. It also will 
 `caret` : Model building  
 `knitr` : Knitting formats and options  
 `gbm` : Boosted tree models  
-`rattle` : Nicer looking tree plots 
-`rmarkdown` : Render function for multiple mds
+`rattle` : Nicer looking tree plots  
+`rmarkdown` : Render function for multiple mds  
   
 # Render Code    
 
