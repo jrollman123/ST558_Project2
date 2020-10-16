@@ -21,7 +21,7 @@ October 14, 2020
 Introduction
 ============
 
-In this project, the objective is to predict the daily bike rental count given a set of inputs. For this analysis, we will be using the \[UCI Bike Sharing Data Set\]<https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset> . The data set has bike rental data for each day across 2011 and 2012. Attributes about the day were also collected to be used in the moddel such as the season, whether the day was a holiday/working day, the weather, the real and 'feeling' temparature, humidity, and windspeed. The models to be constructed are a single regression tree and then moving to the more complex boosted regression tree.
+In this project, the objective is to predict the daily bike rental count given a set of inputs. For this analysis, we will be using the [UCI Bike Sharing Data Set](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset). The data set has bike rental data for each day across 2011 and 2012. Attributes about the day were also collected to be used in the moddel such as the season, whether the day was a holiday/working day, the weather, the real and 'feeling' temparature, humidity, and windspeed. The models to be constructed are a single regression tree and then moving to the more complex boosted regression tree.
 
 Packages Used
 -------------
@@ -42,8 +42,7 @@ bikeData.full <- read.csv("day.csv")
 bikeData <- bikeData.full %>% 
   as_tibble() %>% 
   select(!casual & !registered) %>% 
-  #filter(weekday==params$weekday)
-  filter(weekday==1) ##Add parameter here later
+  filter(weekday==params$weekday)
 ```
 
 Data Splitting
@@ -52,8 +51,8 @@ Data Splitting
 ``` r
 set.seed(558)
 DataIndex <- createDataPartition(bikeData$cnt, p = .7, list = F)
-bikeTrain <- bikeData[DataIndex,-(1:2)] #%>% mutate_at(1:7,factor)
-bikeTest <- bikeData[-DataIndex,-(1:2)] #%>% mutate_at(1:7,factor)
+bikeTrain <- bikeData[DataIndex,-(1:2)]
+bikeTest <- bikeData[-DataIndex,-(1:2)]
 ```
 
 Exploratory Summary
@@ -70,12 +69,12 @@ kable(as.array(summary(bikeTrain$cnt)),
 
 | Var1    |    Freq|
 |:--------|-------:|
-| Min.    |    22.0|
-| 1st Qu. |  3303.2|
-| Median  |  4360.5|
-| Mean    |  4332.4|
-| 3rd Qu. |  5890.2|
-| Max.    |  7525.0|
+| Min.    |   431.0|
+| 1st Qu. |  3239.2|
+| Median  |  4721.0|
+| Mean    |  4640.0|
+| 3rd Qu. |  6257.5|
+| Max.    |  7804.0|
 
 Histogram
 ---------
@@ -219,7 +218,7 @@ model1.perf
 ```
 
     ##                                  RMSE  Rsquared
-    ## Single Regression Tree Model 1670.551 0.2410654
+    ## Single Regression Tree Model 1828.015 0.2166289
 
 Boosted Tree Model (Ensemble)
 -----------------------------
@@ -240,7 +239,7 @@ model2.perf
 ```
 
     ##                        RMSE  Rsquared
-    ## Boosted Tree Model 1283.141 0.5835231
+    ## Boosted Tree Model 1401.265 0.5862216
 
 Training Performance
 --------------------
@@ -254,8 +253,8 @@ kable(Model.perf, caption = "Model Performance on Training Data", digits = 2)
 
 |                              |     RMSE|  Rsquared|
 |:-----------------------------|--------:|---------:|
-| Single Regression Tree Model |  1670.55|      0.24|
-| Boosted Tree Model           |  1283.14|      0.58|
+| Single Regression Tree Model |  1828.01|      0.22|
+| Boosted Tree Model           |  1401.26|      0.59|
 
 Test Data Performance
 =====================
@@ -276,7 +275,7 @@ kable(pred.perf[,1:2], caption = "Model Performance on Testing Data", digits = 2
 
 |                              |     RMSE|  Rsquared|
 |:-----------------------------|--------:|---------:|
-| Single Regression Tree Model |  1034.69|      0.59|
-| Boosted Tree Model           |  1136.74|      0.50|
+| Single Regression Tree Model |  1643.01|      0.19|
+| Boosted Tree Model           |  1518.10|      0.28|
 
 Based on the testing data performance, it looks like the single regression tree would produced better results. This could be due to the stochastic nature of splitting the data set into a test and training set. Further work could be done to make sure both test and training set are equally representative.

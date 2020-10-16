@@ -21,7 +21,7 @@ October 14, 2020
 Introduction
 ============
 
-In this project, the objective is to predict the daily bike rental count given a set of inputs. For this analysis, we will be using the \[UCI Bike Sharing Data Set\]<https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset> . The data set has bike rental data for each day across 2011 and 2012. Attributes about the day were also collected to be used in the moddel such as the season, whether the day was a holiday/working day, the weather, the real and 'feeling' temparature, humidity, and windspeed. The models to be constructed are a single regression tree and then moving to the more complex boosted regression tree.
+In this project, the objective is to predict the daily bike rental count given a set of inputs. For this analysis, we will be using the [UCI Bike Sharing Data Set](https://archive.ics.uci.edu/ml/datasets/Bike+Sharing+Dataset). The data set has bike rental data for each day across 2011 and 2012. Attributes about the day were also collected to be used in the moddel such as the season, whether the day was a holiday/working day, the weather, the real and 'feeling' temparature, humidity, and windspeed. The models to be constructed are a single regression tree and then moving to the more complex boosted regression tree.
 
 Packages Used
 -------------
@@ -42,8 +42,7 @@ bikeData.full <- read.csv("day.csv")
 bikeData <- bikeData.full %>% 
   as_tibble() %>% 
   select(!casual & !registered) %>% 
-  #filter(weekday==params$weekday)
-  filter(weekday==1) ##Add parameter here later
+  filter(weekday==params$weekday)
 ```
 
 Data Splitting
@@ -52,8 +51,8 @@ Data Splitting
 ``` r
 set.seed(558)
 DataIndex <- createDataPartition(bikeData$cnt, p = .7, list = F)
-bikeTrain <- bikeData[DataIndex,-(1:2)] #%>% mutate_at(1:7,factor)
-bikeTest <- bikeData[-DataIndex,-(1:2)] #%>% mutate_at(1:7,factor)
+bikeTrain <- bikeData[DataIndex,-(1:2)]
+bikeTest <- bikeData[-DataIndex,-(1:2)]
 ```
 
 Exploratory Summary
