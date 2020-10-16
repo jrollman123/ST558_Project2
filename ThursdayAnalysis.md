@@ -202,7 +202,8 @@ The first model being built is a single regression tree. The model will use all 
 treeFit <- train(cnt ~ season + workingday + temp + atemp + hum + windspeed, 
                   data = bikeTrain,
                   method = "rpart",
-                  trControl = trainControl(method = "LOOCV")
+                  trControl = trainControl(method = "LOOCV"),
+                  tuneGrid = expand.grid(cp = seq(0, 0.1, 0.005))
                   )
 fancyRpartPlot(treeFit$finalModel)
 ```
@@ -211,14 +212,14 @@ fancyRpartPlot(treeFit$finalModel)
 
 ``` r
 #Model Tree Plot
-model1.perf <- treeFit$results[treeFit$results$RMSE==min(treeFit$results$RMSE),2:3]
+model1.perf <- treeFit$results[treeFit$results$RMSE==min(treeFit$results$RMSE),2:3][1,]
 #RMSE and R2 of best tuned model
 rownames(model1.perf) <- "Single Regression Tree Model"
 model1.perf
 ```
 
-    ##                                  RMSE  Rsquared
-    ## Single Regression Tree Model 1828.015 0.2166289
+    ##                                  RMSE Rsquared
+    ## Single Regression Tree Model 1547.515 0.397995
 
 Boosted Tree Model (Ensemble)
 -----------------------------
@@ -230,6 +231,7 @@ boostFit <- train(cnt ~ season + workingday + temp + atemp + hum + windspeed,
                   data = bikeTrain,
                   method = "gbm",
                   trControl = trainControl(method = "cv", number = 10),
+                  tuneGrid = expand.grid(n.trees = c(50,100,150,200), interaction.depth = c(1,2,3), shrinkage = c(.01,.1),n.minobsinnode = 10),
                   verbose = FALSE
                   )
 model2.perf <- boostFit$results[boostFit$results$RMSE==min(boostFit$results$RMSE),5:6]
@@ -239,7 +241,7 @@ model2.perf
 ```
 
     ##                        RMSE  Rsquared
-    ## Boosted Tree Model 1401.265 0.5862216
+    ## Boosted Tree Model 1399.836 0.5576472
 
 Training Performance
 --------------------
@@ -251,8 +253,8 @@ kable(Model.perf, caption = "Model Performance on Training Data", digits = 2)
 
 |                              |     RMSE|  Rsquared|
 |:-----------------------------|--------:|---------:|
-| Single Regression Tree Model |  1828.01|      0.22|
-| Boosted Tree Model           |  1401.26|      0.59|
+| Single Regression Tree Model |  1547.51|      0.40|
+| Boosted Tree Model           |  1399.84|      0.56|
 
 From the models above, the Boosted Tree Model performs the best in terms of training RMSE as well as Rsquared.
 
@@ -276,6 +278,6 @@ kable(pred.perf[,1:2], caption = "Model Performance on Testing Data", digits = 2
 |                              |     RMSE|  Rsquared|
 |:-----------------------------|--------:|---------:|
 | Single Regression Tree Model |  1643.01|      0.19|
-| Boosted Tree Model           |  1518.10|      0.28|
+| Boosted Tree Model           |  1514.76|      0.31|
 
 Based on the testing data performance, Boosted Tree Model would be the more optimal model based on test RMSE. This could also be affected by the stochastic nature of splitting the data set into a test and training set. Further work could be done to make sure both test and training set are equally representative.

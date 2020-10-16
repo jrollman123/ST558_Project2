@@ -153,11 +153,12 @@ The first model being built is a single regression tree. The model will use all 
 treeFit <- train(cnt ~ season + workingday + temp + atemp + hum + windspeed, 
                   data = bikeTrain,
                   method = "rpart",
-                  trControl = trainControl(method = "LOOCV")
+                  trControl = trainControl(method = "LOOCV"),
+                  tuneGrid = expand.grid(cp = seq(0, 0.1, 0.005))
                   )
 fancyRpartPlot(treeFit$finalModel)
 #Model Tree Plot
-model1.perf <- treeFit$results[treeFit$results$RMSE==min(treeFit$results$RMSE),2:3]
+model1.perf <- treeFit$results[treeFit$results$RMSE==min(treeFit$results$RMSE),2:3][1,]
 #RMSE and R2 of best tuned model
 rownames(model1.perf) <- "Single Regression Tree Model"
 model1.perf
@@ -171,6 +172,7 @@ boostFit <- train(cnt ~ season + workingday + temp + atemp + hum + windspeed,
                   data = bikeTrain,
                   method = "gbm",
                   trControl = trainControl(method = "cv", number = 10),
+                  tuneGrid = expand.grid(n.trees = c(50,100,150,200), interaction.depth = c(1,2,3), shrinkage = c(.01,.1),n.minobsinnode = 10),
                   verbose = FALSE
                   )
 model2.perf <- boostFit$results[boostFit$results$RMSE==min(boostFit$results$RMSE),5:6]
